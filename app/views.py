@@ -9,7 +9,8 @@ def index():
     if request.method == 'POST':
         city = request.form['city']
 
-        url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid=b5268fcd2ca37ab2198170fac2825453'
+        # Vulnerable code: Directly using user-provided data in URL
+        url = 'http://api.openweathermap.org/data/2.5/weather?q=' + city + '&appid=b5268fcd2ca37ab2198170fac2825453'
 
         response = requests.get(url).json()
 
