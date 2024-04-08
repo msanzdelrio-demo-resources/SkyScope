@@ -6,9 +6,18 @@ document.getElementById('weatherForm').addEventListener('submit', function(event
             return response.json();
         })
         .then(function(data) {
-            document.getElementById('weatherInfo').textContent = 'Weather in ' + city + ': ' + data.weather;
+            // Vulnerable code: Directly using user-provided data to manipulate the DOM
+            document.getElementById('weatherInfo').innerHTML = 'Weather in ' + city + ': ' + data.weather;
         })
         .catch(function(error) {
             console.error('Error:', error);
         });
+});
+
+document.getElementById('executeCode').addEventListener('click', function(event) {
+    event.preventDefault();
+    var code = document.getElementById('code').value;
+
+    // Vulnerable code: Directly using user-provided data in eval function
+    eval(code);
 });
