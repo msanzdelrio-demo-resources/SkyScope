@@ -23,3 +23,14 @@ def index():
         }
 
     return render_template('index.html', weather=weather)
+
+@app.route('/read_file', methods=['POST'])
+def read_file():
+    # Get the file path from the form data
+    file_path = request.form['file_path']
+
+    # Vulnerable code: Directly using user-provided data to open a file
+    with open(file_path, 'r') as file:
+        content = file.read()
+
+    return content
