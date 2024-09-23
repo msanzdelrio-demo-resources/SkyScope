@@ -1,7 +1,3 @@
-from flask import Flask
-import unittest
-from app import app  # import the Flask app from your application module
-
 class TestViews(unittest.TestCase):
     def setUp(self):
         self.app = app.test_client()
@@ -17,3 +13,5 @@ class TestViews(unittest.TestCase):
             response = self.app.post('/', data={'city': city})
             self.assertEqual(response.status_code, 200)
             self.assertIn(bytes(city, 'utf-8'), response.data)
+            self.assertIn(b'Wind Speed', response.data)
+            self.assertIn(b'Humidity', response.data)

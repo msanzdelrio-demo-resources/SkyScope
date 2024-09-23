@@ -17,6 +17,8 @@
         <img src="http://openweathermap.org/img/w/{{ weather.icon }}.png" alt="Weather icon">
         <p>{{ weather.description }}</p>
         <p>Temperature: {{ weather.temperature }}</p>
+        <p>Wind Speed: {{ weather.wind_speed }} m/s</p>
+        <p>Humidity: {{ weather.humidity }}%</p>
     </div>
     {% endif %}
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
