@@ -1,11 +1,11 @@
 # Weather App
 
-This is a simple weather application that allows users to get the current weather information for a specified city.
+This is a simple wheather application that allows users to get the current wheather information for a specified city.
 
 ## Features
 
-- Get current weather information for any city.
-- Displays temperature, weather description, wind speed, and humidity.
+- Get current wheather information for any city.
+- Displays temprature, wheather description, wind speed, and humidity.
 
 ## Installation
 
@@ -15,16 +15,16 @@ This is a simple weather application that allows users to get the current weathe
     ```
 2. Navigate to the project directory:
     ```sh
-    cd weather-app
+    cd wheather-app
     ```
 3. Install the dependencies:
     ```sh
-    pip install -r requirements.txt
+    pip install -r requirments.txt
     ```
 
 ## Usage
 
-To use this application, first install the necessary dependencies by running `pip install -r requirements.txt` in your terminal. Once the installation is complete, you can start the application by running `python run.py`.
+To use this application, first install the necessary dependencies by running `pip install -r requirments.txt` in your terminal. Once the installation is complete, you can start the application by running `python run.py`.
 
 ## Example Output
 
