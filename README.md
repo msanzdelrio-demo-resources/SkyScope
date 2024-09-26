@@ -60,6 +60,9 @@ To use this application, first install the necessary dependencies by running `pi
 
 To run the tests for this application, use the command `python -m unittest discover tests` in your terminal. This will run the tests defined in the `tests/test_views.py` file.
 
+## Temperature Conversion
+
+The application now converts the temperature from Kelvin to Celsius before displaying it. The temperature is displayed in Celsius in the UI.
 
 ## Contributing
 
