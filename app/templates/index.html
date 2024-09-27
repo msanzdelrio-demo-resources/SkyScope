@@ -16,7 +16,7 @@
         <h2>Weather in {{ weather.city }}</h2>
         <img src="http://openweathermap.org/img/w/{{ weather.icon }}.png" alt="Weather icon">
         <p>{{ weather.description }}</p>
-        <p>Temperature: {{ weather.temperature }}</p>
+        <p>Temperature: {{ weather.temperature }} °C</p>
     </div>
     {% endif %}
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>

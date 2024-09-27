@@ -17,3 +17,12 @@ class TestViews(unittest.TestCase):
             response = self.app.post('/', data={'city': city})
             self.assertEqual(response.status_code, 200)
             self.assertIn(bytes(city, 'utf-8'), response.data)
+            self.assertIn(b'Temperature:', response.data)
+            self.assertIn(b'\xc2\xb0C', response.data)  # Check for the degree Celsius symbol
+
+    def test_temperature_conversion(self):
+        city = 'London'
+        response = self.app.post('/', data={'city': city})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Temperature:', response.data)
+        self.assertIn(b'\xc2\xb0C', response.data)  # Check for the degree Celsius symbol
