@@ -17,3 +17,5 @@ class TestViews(unittest.TestCase):
             response = self.app.post('/', data={'city': city})
             self.assertEqual(response.status_code, 200)
             self.assertIn(bytes(city, 'utf-8'), response.data)
+            self.assertIn(b'Temperature: ', response.data)
+            self.assertIn(b' \xc2\xb0C', response.data)

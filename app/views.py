@@ -13,10 +13,13 @@ def index():
 
         response = requests.get(url).json()
 
+        temperature_kelvin = response['main']['temp']
+        temperature_celsius = temperature_kelvin - 273.15
+
         weather = {
             'country': response['sys']['country'],
             'city': response['name'],
-            'temperature': response['main']['temp'],
+            'temperature': temperature_celsius,
             'description': response['weather'][0]['description'],
             'icon': response['weather'][0]['icon'],
         }

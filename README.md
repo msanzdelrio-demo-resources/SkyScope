@@ -68,3 +68,10 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
+
+## Updates
+
+- The temperature is now displayed in Celsius in both the source code and the UI.
+- The temperature is converted from Kelvin to Celsius in `app/views.py`.
+- The UI in `app/templates/index.html` now displays the temperature in Celsius.
+- Added tests in `tests/test_views.py` to verify the temperature conversion to Celsius.
