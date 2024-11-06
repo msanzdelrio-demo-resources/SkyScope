@@ -5,19 +5,22 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
-    <h1>Weather App</h1>
-    <form method="POST">
-        <label for="city" class="city-label">Enter city:</label>
-        <input type="text" id="city" name="city" placeholder="Enter city name" required>
-        <input type="submit" value="Get Weather">
-    </form>
+    <h1>☀️ SkyScope: Your Weather Explorer 🌈</h1>
+    <div class="form-container">
+        <form method="POST">
+            <div class="input-group">
+                <input type="text" id="city" name="city" placeholder="Enter city name" required>
+            </div>
+            <input type="submit" value="Get Weather">
+        </form>
+    </div>
     {% if weather %}
     <div class="weather-info">
         <div class="header">
             <h2>{{ weather.city }}</h2>
             <img src="http://openweathermap.org/img/w/{{ weather.icon }}.png" alt="Weather icon">
             <div>
-                <span>{{ weather.temperature }}°C</span>
+                <span>{{ weather.temperature }}</span>
                 <p>{{ weather.description }}</p>
             </div>
         </div>
