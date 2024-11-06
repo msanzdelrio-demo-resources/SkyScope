@@ -19,6 +19,9 @@ def index():
             'temperature': response['main']['temp'],
             'description': response['weather'][0]['description'],
             'icon': response['weather'][0]['icon'],
+            'wind_speed': response['wind']['speed'],
+            'rain': response.get('rain', {}).get('1h', 0),
+            'pressure': response['main']['pressure']
         }
 
     return render_template('index.html', weather=weather)
