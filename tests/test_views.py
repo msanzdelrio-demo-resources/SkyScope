@@ -20,6 +20,8 @@ class TestViews(unittest.TestCase):
             self.assertIn(b'Wind Speed:', response.data)
             self.assertIn(b'Rain:', response.data)
             self.assertIn(b'Pressure:', response.data)
+            self.assertIn(b'Visibility:', response.data)  # Pbe1b
+            self.assertIn(b'Snow:', response.data)  # Pbe1b
 
     def test_weather_info(self):
         response = self.app.post('/', data={'city': 'London'})
@@ -29,3 +31,6 @@ class TestViews(unittest.TestCase):
         self.assertIn(b'Wind Speed:', response.data)
         self.assertIn(b'Rain:', response.data)
         self.assertIn(b'Pressure:', response.data)
+        self.assertIn(b'Visibility:', response.data)  # Pbe1b
+        self.assertIn(b'Snow:', response.data)  # Pbe1b
+        self.assertIn(b'°C', response.data)  # Pae08
