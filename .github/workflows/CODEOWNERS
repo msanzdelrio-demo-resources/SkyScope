@@ -1,4 +1,4 @@
 # CODEOWNERS file for SkyScope repository
 
 # All markdown files should be reviewed by the doctocats team
-*.md @doctocats
+*.md @msanzdelrio-demo-resources/doctocats
