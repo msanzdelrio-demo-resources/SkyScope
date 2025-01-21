@@ -20,6 +20,8 @@ class TestViews(unittest.TestCase):
             self.assertIn(b'Wind Speed:', response.data)
             self.assertIn(b'Rain:', response.data)
             self.assertIn(b'Pressure:', response.data)
+            self.assertIn(b'Visibility:', response.data)
+            self.assertIn(b'Snow:', response.data)
 
     def test_weather_info(self):
         response = self.app.post('/', data={'city': 'London'})
@@ -29,3 +31,21 @@ class TestViews(unittest.TestCase):
         self.assertIn(b'Wind Speed:', response.data)
         self.assertIn(b'Rain:', response.data)
         self.assertIn(b'Pressure:', response.data)
+        self.assertIn(b'Visibility:', response.data)
+        self.assertIn(b'Snow:', response.data)
+
+    def test_temperature_in_celsius(self):
+        response = self.app.post('/', data={'city': 'London'})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Temperature:', response.data)
+        self.assertIn(b' \xc2\xb0C', response.data)  # Check for Celsius symbol
+
+    def test_visibility_field(self):
+        response = self.app.post('/', data={'city': 'London'})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Visibility:', response.data)
+
+    def test_snow_field(self):
+        response = self.app.post('/', data={'city': 'London'})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Snow:', response.data)

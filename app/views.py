@@ -16,15 +16,21 @@ def index():
 
         response = requests.get(url).json()
 
+        temperature_celsius = round(response['main']['temp'] - 273.15, 1)
+        visibility = response.get('visibility', 'N/A')
+        snow = response.get('snow', {}).get('1h', 0)
+
         weather = {
             'country': response['sys']['country'],
             'city': response['name'],
-            'temperature': response['main']['temp'],
+            'temperature': temperature_celsius,
             'description': response['weather'][0]['description'],
             'icon': response['weather'][0]['icon'],
             'wind_speed': response['wind']['speed'],
             'rain': response.get('rain', {}).get('1h', 0),
-            'pressure': response['main']['pressure']
+            'pressure': response['main']['pressure'],
+            'visibility': visibility,
+            'snow': snow
         }
 
     return render_template('index.html', weather=weather)
