@@ -1,9 +1,13 @@
 {
-	"name": "Python",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "docker pull mcr.microsoft.com/azurelinux/base/python:3.12",
-	"features": {
-		"ghcr.io/devcontainers/features/github-cli:1": {}
+	"name": "Python 3",
+	"hostRequirements": {
+		"cpus": 4,
+		"memory": "16gb",
+		"storage": "32gb"
+	},
+	"build": {
+		"dockerfile": "./Dockerfile",
+		"context": ".."
 	},
 	"customizations": {
 		"vscode": {
