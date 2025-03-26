@@ -19,12 +19,14 @@ def index():
         weather = {
             'country': response['sys']['country'],
             'city': response['name'],
-            'temperature': response['main']['temp'],
+            'temperature': round(response['main']['temp'] - 273.15, 1),  # Convert Kelvin to Celsius
             'description': response['weather'][0]['description'],
             'icon': response['weather'][0]['icon'],
             'wind_speed': response['wind']['speed'],
             'rain': response.get('rain', {}).get('1h', 0),
-            'pressure': response['main']['pressure']
+            'pressure': response['main']['pressure'],
+            'visibility': response.get('visibility', 'N/A'),  # Add visibility
+            'snow': response.get('snow', {}).get('1h', 0)  # Add snow percentage
         }
 
     return render_template('index.html', weather=weather)

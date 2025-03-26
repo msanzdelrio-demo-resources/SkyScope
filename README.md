@@ -81,6 +81,8 @@ python run.py
 5. Open your web browser and navigate to http://localhost:5000.
 6. Enter a city name in the input field and click "Get Weather".
 7. Verify that the weather information, including wind speed, rain %, and pressure, is displayed correctly.
+- Displays temperature in Celsius (rounded to 1 decimal place).
+- Includes visibility (in meters) and snow percentage in the weather information.
 
 ## Contributing
 
