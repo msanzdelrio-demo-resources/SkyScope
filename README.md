@@ -1,6 +1,6 @@
 # SkyScope
 
-This is a simple weather application built with Flask. It allows users to enter a city name and get the current weather information for that city.
+This is a simple weather application built with Flask. It allows users to enter a city name and get the current weather information for that city. The application displays the temperature in Celsius by default.
 
 # Installation
 
