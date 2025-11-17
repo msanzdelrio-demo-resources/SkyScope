@@ -248,7 +248,7 @@ def handle_weather_api_error(response):
     if response.status_code == 404:
         return {'error': 'City not found. Please check the spelling and try again.'}
     elif response.status_code == 401:
-        return {'error': 'Weather service temporarily unavailable.'}
+        return {'error': 'Invalid API key or authentication failed.'}
     elif response.status_code == 429:
         return {'error': 'Too many requests. Please try again in a moment.'}
     else:
