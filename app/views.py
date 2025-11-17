@@ -17,14 +17,14 @@ def index():
         response = requests.get(url).json()
 
         weather = {
-            'country': response['sys']['country'],
-            'city': response['name'],
-            'temperature': response['main']['temp'],
-            'description': response['weather'][0]['description'],
-            'icon': response['weather'][0]['icon'],
-            'wind_speed': response['wind']['speed'],
+            'country': response.get('sys', {}).get('country', 'Unknown'),
+            'city': response.get('name', 'Unknown'),
+            'temperature': response.get('main', {}).get('temp', 0),
+            'description': response.get('weather', [{}])[0].get('description', 'N/A'),
+            'icon': response.get('weather', [{}])[0].get('icon', ''),
+            'wind_speed': response.get('wind', {}).get('speed', 0),
             'rain': response.get('rain', {}).get('1h', 0),
-            'pressure': response['main']['pressure']
+            'pressure': response.get('main', {}).get('pressure', 0)
         }
 
     return render_template('index.html', weather=weather)
