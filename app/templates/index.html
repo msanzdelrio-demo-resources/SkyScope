@@ -20,7 +20,14 @@
             <h2>Weather in {{ weather.city }}</h2>
             <img src="https://openweathermap.org/img/w/{{ weather.icon }}.png" alt="Weather icon">
             <div>
-                <p>Temperature: <span>{{ weather.temperature }}</span></p>
+                <p>Temperature: <span id="temperature-value" data-celsius="{{ weather.temperature }}">{{ weather.temperature }}</span><span id="temperature-unit">°C</span></p>
+                <div class="unit-toggle-container">
+                    <button id="unit-toggle" class="unit-toggle" aria-label="Toggle temperature unit between Celsius and Fahrenheit" role="switch" aria-checked="false">
+                        <span class="unit-option" data-unit="celsius">°C</span>
+                        <span class="unit-option" data-unit="fahrenheit">°F</span>
+                        <span class="toggle-slider"></span>
+                    </button>
+                </div>
                 <p>{{ weather.description }}</p>
             </div>
         </div>

@@ -35,10 +35,13 @@ def index():
         else:
             url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={OPENWEATHER_API_KEY}'
             response = requests.get(url).json()
+            # Convert temperature from Kelvin to Celsius
+            temp_kelvin = response['main']['temp']
+            temp_celsius = round(temp_kelvin - 273.15, 1)
             weather = {
                 'country': response['sys']['country'],
                 'city': response['name'],
-                'temperature': response['main']['temp'],
+                'temperature': temp_celsius,
                 'description': response['weather'][0]['description'],
                 'icon': response['weather'][0]['icon'],
                 'wind_speed': response['wind']['speed'],
