@@ -38,7 +38,7 @@ def index():
             weather = {
                 'country': response['sys']['country'],
                 'city': response['name'],
-                'temperature': response['main']['temp'],
+                'temperature': round(response['main']['temp'] - 273.15, 1),
                 'description': response['weather'][0]['description'],
                 'icon': response['weather'][0]['icon'],
                 'wind_speed': response['wind']['speed'],
