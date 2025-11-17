@@ -17,10 +17,10 @@
     {% if weather %}
     <div class="weather-info">
         <div class="header">
-            <h2>{{ weather.city }}</h2>
-            <img src="http://openweathermap.org/img/w/{{ weather.icon }}.png" alt="Weather icon">
+            <h2>Weather in {{ weather.city }}</h2>
+            <img src="https://openweathermap.org/img/w/{{ weather.icon }}.png" alt="Weather icon">
             <div>
-                <span>{{ weather.temperature }}°C</span>
+                <p>Temperature: <span>{{ weather.temperature }}</span></p>
                 <p>{{ weather.description }}</p>
             </div>
         </div>
