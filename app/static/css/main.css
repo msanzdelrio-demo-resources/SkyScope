@@ -149,3 +149,100 @@ input[type="submit"]:hover {
 .metrics p:last-child {
     border-bottom: none;
 }
+
+/* Temperature Unit Toggle Styles */
+.unit-toggle-container {
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0;
+}
+
+.unit-toggle {
+    position: relative;
+    width: 120px;
+    height: 40px;
+    background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+    border: 2px solid #7c7cff;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.unit-toggle:hover {
+    box-shadow: 0 4px 12px rgba(124, 124, 255, 0.3);
+}
+
+.unit-toggle:focus {
+    outline: 2px solid #7c7cff;
+    outline-offset: 2px;
+}
+
+.unit-option {
+    position: relative;
+    z-index: 2;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #666;
+    transition: color 0.3s ease;
+    user-select: none;
+    padding: 0 10px;
+}
+
+.unit-toggle.fahrenheit .unit-option[data-unit="fahrenheit"],
+.unit-toggle:not(.fahrenheit) .unit-option[data-unit="celsius"] {
+    color: white;
+}
+
+.toggle-slider {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 54px;
+    height: 32px;
+    background: linear-gradient(135deg, #7c7cff 0%, #6565f7 100%);
+    border-radius: 16px;
+    transition: transform 0.3s ease;
+    z-index: 1;
+}
+
+.unit-toggle.fahrenheit .toggle-slider {
+    transform: translateX(60px);
+}
+
+#temperature-value {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+#temperature-unit {
+    font-size: 20px;
+    font-weight: bold;
+    margin-left: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .unit-toggle {
+        width: 100px;
+        height: 36px;
+    }
+    
+    .toggle-slider {
+        width: 44px;
+        height: 28px;
+    }
+    
+    .unit-toggle.fahrenheit .toggle-slider {
+        transform: translateX(50px);
+    }
+    
+    .unit-option {
+        font-size: 0.9rem;
+        padding: 0 8px;
+    }
+}
