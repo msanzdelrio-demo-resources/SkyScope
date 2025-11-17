@@ -162,11 +162,13 @@ function handleFormSubmit(event) {
     // Show loading state
     showLoadingState(true);
     
-    // Handle API calls with proper error handling
+    // Extract form data and send as JSON
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData);
     fetch('/api/endpoint', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(formData)
+        body: JSON.stringify(data)
     })
     .then(response => response.json())
     .then(data => handleSuccess(data))
