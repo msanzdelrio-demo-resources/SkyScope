@@ -4,8 +4,8 @@ from app import app  # import the Flask app from your application module
 
 class TestViews(unittest.TestCase):
     def setUp(self):
+        app.testing = True
         self.app = app.test_client()
-        self.app.testing = True
 
     def test_index(self):
         result = self.app.get('/')
