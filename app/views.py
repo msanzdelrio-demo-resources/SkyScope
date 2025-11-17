@@ -2,6 +2,7 @@ from flask import render_template, request
 from . import app
 import requests
 import os
+import re
 
 OPENWEATHER_API_KEY = os.environ.get('OPENWEATHER_APPID')
 
@@ -25,8 +26,11 @@ def index():
     if request.method == 'POST':
         city = request.form['city']
 
+        # Validate city name to prevent partial SSRF and injection attacks
+        if not re.match(r"^[a-zA-Z\s\-']{1,64}$", city):
+            weather = None  # or optionally: weather = {'error': 'Invalid city name.'}
         # Use mock data when in testing mode
-        if app.testing:
+        elif app.testing:
             weather = get_mock_weather_data(city)
         else:
             url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={OPENWEATHER_API_KEY}'
