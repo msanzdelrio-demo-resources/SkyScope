@@ -1,6 +1,7 @@
 ---
 name: 'UI Feature Accessibility'
 description: 'Ensures all UI features are accessible, responsive, and user-friendly for the SkyScope weather application.'
+tools: ["read", "search", "edit", "runSubagent"]
 ---
 
 # UI Feature Development Agent
