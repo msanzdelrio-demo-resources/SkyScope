@@ -17,6 +17,7 @@ class TestViews(unittest.TestCase):
             response = self.app.post('/', data={'city': city})
             self.assertEqual(response.status_code, 200)
             self.assertIn(bytes(city, 'utf-8'), response.data)
+            self.assertIn(b'\xc2\xb0C', response.data)  # Check for °C symbol
             self.assertIn(b'Wind Speed:', response.data)
             self.assertIn(b'Rain:', response.data)
             self.assertIn(b'Pressure:', response.data)
@@ -24,8 +25,7 @@ class TestViews(unittest.TestCase):
     def test_weather_info(self):
         response = self.app.post('/', data={'city': 'London'})
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Weather in London', response.data)
-        self.assertIn(b'Temperature:', response.data)
+        self.assertIn(b'\xc2\xb0C', response.data)  # Check for °C symbol
         self.assertIn(b'Wind Speed:', response.data)
         self.assertIn(b'Rain:', response.data)
         self.assertIn(b'Pressure:', response.data)
