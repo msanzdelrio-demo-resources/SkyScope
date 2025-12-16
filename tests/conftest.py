@@ -9,6 +9,11 @@ import unittest
 import tempfile
 import os
 from unittest.mock import patch, MagicMock
+
+# Set environment variable for testing before importing app
+# This prevents the ValueError in app/views.py when OPENWEATHER_APPID is not set
+os.environ.setdefault('OPENWEATHER_APPID', 'test_api_key_for_testing')
+
 from app import app
 
 
