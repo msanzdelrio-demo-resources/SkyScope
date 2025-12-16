@@ -1,36 +1,119 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Weather App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyScope - Weather Explorer</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
-<body>
-    <h1>☀️ SkyScope: Your Weather Explorer 🌈</h1>
-    <div class="form-container">
-        <form method="POST">
-            <div class="input-group">
-                <input type="text" id="city" name="city" placeholder="Enter city name" required>
+<body data-temperature-unit="{{ temperature_unit }}">
+    <header>
+        <h1>☀️ SkyScope: Your Weather Explorer 🌈</h1>
+    </header>
+
+    <main role="main" aria-label="Weather application">
+        <div class="form-container">
+            <!-- Temperature Unit Toggle (Celsius / Kelvin) -->
+            <div class="temperature-toggle" role="group" aria-labelledby="temp-unit-label">
+                <label id="temp-unit-label" class="toggle-label">Temperature Unit:</label>
+                <div class="toggle-switch" role="switch" aria-labelledby="temp-unit-label">
+                    <input type="checkbox" 
+                           id="temp-unit-toggle" 
+                           name="temperature_unit" 
+                           value="kelvin"
+                           {% if temperature_unit == 'kelvin' %}checked{% endif %}
+                           aria-label="Toggle between Celsius and Kelvin temperature units">
+                    <label for="temp-unit-toggle" class="toggle-slider">
+                        <span class="unit-label celsius">°C</span>
+                        <span class="slider"></span>
+                        <span class="unit-label kelvin">K</span>
+                    </label>
+                </div>
             </div>
-            <input type="submit" value="Get Weather">
-        </form>
-    </div>
-    {% if weather %}
-    <div class="weather-info">
-        <div class="header">
-            <h2>Weather in {{ weather.city }}</h2>
-            <img src="https://openweathermap.org/img/w/{{ weather.icon }}.png" alt="Weather icon">
-            <div>
-                <p>Temperature: <span>{{ weather.temperature }}</span></p>
-                <p>{{ weather.description }}</p>
+
+            <!-- Weather Search Form -->
+            <form method="POST" id="weatherForm" aria-label="Weather search form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="input-group">
+                    <input type="text" 
+                           id="city" 
+                           name="city" 
+                           placeholder="Enter city name" 
+                           required 
+                           aria-label="City name input"
+                           maxlength="64"
+                           pattern="[a-zA-Z\s\-',.0-9]+"
+                           value="{% if weather %}{{ weather.city|e }}{% endif %}">
+                </div>
+                <input type="submit" 
+                       value="Get Weather" 
+                       aria-label="Submit weather search">
+            </form>
+        </div>
+
+        <!-- Error Display -->
+        {% if error %}
+        <div class="error-message" role="alert" aria-live="polite">
+            <p>{{ error }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Weather Information Display -->
+        {% if weather %}
+        <div class="weather-info" role="region" aria-label="Weather information">
+            <div class="header">
+                <h2>Weather in {{ weather.city|e }}, {{ weather.country|e }}</h2>
+                <div class="weather-main">
+                    <img src="https://openweathermap.org/img/w/{{ weather.icon|e }}.png" 
+                         alt="Weather icon for {{ weather.description|e }}"
+                         class="weather-icon">
+                    <div class="temperature-display">
+                        <p class="main-temperature">
+                            <span class="temp-value" id="main-temp">{{ weather.temperature_formatted|e }}</span>
+                        </p>
+                        <p class="weather-description">{{ weather.description.title()|e }}</p>
+                        
+                        <div class="temperature-details">
+                            <p>Feels like: <span id="feels-like-temp">{{ weather.feels_like_formatted|e }}</span></p>
+                            <p>Min: <span id="min-temp">{{ weather.temp_min_formatted|e }}</span> | 
+                               Max: <span id="max-temp">{{ weather.temp_max_formatted|e }}</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="metrics">
+                <div class="metric-item">
+                    <span class="metric-label">Wind Speed:</span>
+                    <span class="metric-value">{{ weather.wind_speed|e }} m/s</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Rain:</span>
+                    <span class="metric-value">{{ weather.rain|e }} mm/h</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Pressure:</span>
+                    <span class="metric-value">{{ weather.pressure|e }} hPa</span>
+                </div>
             </div>
         </div>
-        <div class="metrics">
-            <p>Wind Speed: {{ weather.wind_speed }} m/s</p>
-            <p>Rain: {{ weather.rain }} %</p>
-            <p>Pressure: {{ weather.pressure }} hPa</p>
-        </div>
-    </div>
-    {% endif %}
+        {% endif %}
+    </main>
+
+    <script>
+        // Pass sanitized temperature data to JavaScript for conversion
+        {% if weather %}
+        window.weatherData = {
+            temperature: {{ weather.temperature|tojson }},
+            feels_like: {{ weather.feels_like|tojson }},
+            temp_min: {{ weather.temp_min|tojson }},
+            temp_max: {{ weather.temp_max|tojson }},
+            current_unit: {{ temperature_unit|tojson }}
+        };
+        {% else %}
+        window.weatherData = null;
+        {% endif %}
+    </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
