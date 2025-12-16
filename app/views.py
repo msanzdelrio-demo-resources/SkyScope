@@ -13,7 +13,7 @@ load_dotenv()
 
 # Secure API key configuration
 OPENWEATHER_API_KEY = os.environ.get('OPENWEATHER_APPID')
-if not OPENWEATHER_API_KEY:
+if not OPENWEATHER_API_KEY and not app.config.get('TESTING'):
     raise ValueError("OPENWEATHER_APPID environment variable is required")
 
 # Secure secret key configuration
@@ -27,7 +27,15 @@ app.secret_key = secret_key
 
 def get_temperature_unit() -> str:
     """Get current temperature unit from session, defaulting to Celsius."""
-    return session.get('temperature_unit', 'celsius').lower()
+    unit = session.get('temperature_unit', 'celsius')
+    # Ensure we return a valid string and handle edge cases
+    if not isinstance(unit, str):
+        return 'celsius'
+    unit = unit.lower()
+    # Only return valid unit values to prevent XSS
+    if unit in {'celsius', 'kelvin', 'fahrenheit'}:
+        return unit
+    return 'celsius'
 
 
 def set_temperature_unit(unit: str) -> bool:
@@ -41,11 +49,29 @@ def set_temperature_unit(unit: str) -> bool:
         True if unit was set successfully, False otherwise
     """
     unit = unit.lower().strip()
-    if unit in {'celsius', 'kelvin'}:
+    if unit in {'celsius', 'kelvin', 'fahrenheit'}:
         session['temperature_unit'] = unit
         session.permanent = True
         return True
     return False
+
+
+def get_api_units_parameter(temperature_unit: str) -> str:
+    """
+    Convert temperature unit preference to OpenWeatherMap API units parameter.
+    
+    Args:
+        temperature_unit: User's preferred temperature unit (celsius, kelvin, fahrenheit)
+        
+    Returns:
+        API units parameter: 'metric' for Celsius, 'standard' for Kelvin, 'imperial' for Fahrenheit
+    """
+    unit_map = {
+        'celsius': 'metric',
+        'kelvin': 'standard',
+        'fahrenheit': 'imperial'
+    }
+    return unit_map.get(temperature_unit.lower(), 'metric')
 
 
 def get_mock_weather_data(city: str) -> Dict[str, Any]:
@@ -65,20 +91,24 @@ def get_mock_weather_data(city: str) -> Dict[str, Any]:
     }
 
 
-def fetch_weather_data(city: str, units: str = 'metric') -> Optional[Dict[str, Any]]:
+def fetch_weather_data(city: str, units: Optional[str] = 'metric') -> Optional[Dict[str, Any]]:
     """
     Fetch weather data from OpenWeatherMap API.
     
     Args:
         city: City name to fetch weather for
-        units: API units parameter ('standard', 'metric', 'imperial')
+        units: API units parameter ('standard', 'metric', 'imperial'), or None for default (Kelvin)
         
     Returns:
         Weather data dictionary or None if request fails
     """
     try:
         # Use HTTPS for secure communication
-        url = f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={OPENWEATHER_API_KEY}&units={units}'
+        # Build URL with optional units parameter
+        url = f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={OPENWEATHER_API_KEY}'
+        if units and units != 'standard':
+            url += f'&units={units}'
+        
         response = requests.get(url, timeout=10, verify=True)
         response.raise_for_status()
         
@@ -168,19 +198,31 @@ def index():
             # Use mock data when in testing mode
             if app.testing:
                 weather = get_mock_weather_data(city)
+                # Mock data is in Celsius
+                source_unit = 'celsius'
             else:
-                # Fetch weather data from API
-                weather = fetch_weather_data(city)
+                # Fetch weather data from API with appropriate units
+                api_units = get_api_units_parameter(temp_unit)
+                weather = fetch_weather_data(city, api_units)
                 
                 if not weather:
                     error_message = "Unable to fetch weather data. Please try again."
+                
+                # Determine source unit from API units parameter
+                # API returns temperatures in the unit specified by the units parameter
+                if api_units == 'metric':
+                    source_unit = 'celsius'
+                elif api_units == 'imperial':
+                    source_unit = 'fahrenheit'
+                else:  # standard or None
+                    source_unit = 'kelvin'
 
-            # Convert temperature data to user's preferred unit
+            # Convert temperature data to user's preferred unit if needed
             if weather:
                 try:
-                    # Convert temperatures from source Celsius to preferred unit
-                    # Note: Both mock data and API data with units='metric' are in Celsius
-                    weather = convert_weather_data(weather, temp_unit, source_unit='celsius')
+                    # Only convert if source and target units differ
+                    if source_unit != temp_unit:
+                        weather = convert_weather_data(weather, temp_unit, source_unit=source_unit)
                     
                     # Format temperature displays with units
                     weather['temperature_formatted'] = format_temperature(weather['temperature'], temp_unit)

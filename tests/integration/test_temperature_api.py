@@ -32,6 +32,17 @@ class TestTemperatureAwareAPI(BaseTestCase):
         """Set up test environment."""
         super().setUp()
         self.mock_api = MockWeatherAPI()
+        # Temporarily disable testing mode to allow API calls to be made
+        # (they'll be mocked by @patch decorators anyway)
+        from app import app as flask_app
+        flask_app.testing = False
+    
+    def tearDown(self):
+        """Clean up after tests."""
+        # Re-enable testing mode
+        from app import app as flask_app
+        flask_app.testing = True
+        super().tearDown()
     
     @patch('requests.get')
     def test_openweather_api_celsius_request(self, mock_get):
@@ -347,6 +358,11 @@ class TestTemperatureAwareAPI(BaseTestCase):
 
 class TestEndToEndTemperatureWorkflow(BaseTestCase):
     """End-to-end integration tests for complete temperature workflows."""
+    
+    def setUp(self):
+        """Set up test environment."""
+        super().setUp()
+        self.mock_api = MockWeatherAPI()
     
     @patch('requests.get')
     def test_complete_temperature_unit_toggle_workflow(self, mock_get):

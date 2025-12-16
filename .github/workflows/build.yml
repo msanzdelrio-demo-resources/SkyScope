@@ -24,6 +24,8 @@ jobs:
             pip install -r requirements.txt
 
         - name: Run tests
+          env:
+            OPENWEATHER_APPID: test_api_key_for_ci
           run: python -m unittest discover tests
 
     Publish:
