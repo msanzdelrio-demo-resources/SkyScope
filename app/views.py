@@ -102,8 +102,9 @@ def fetch_weather_data(city: str, units: str = 'metric') -> Optional[Dict[str, A
         return weather_data
         
     except (requests.RequestException, KeyError, ValueError) as e:
-        # Log detailed error for debugging, but don't expose to user
-        app.logger.error(f"Weather API error for city '{city[:20]}...': {type(e).__name__}")
+        # Sanitize user input before logging to prevent log injection
+        safe_city = city.replace('\r', '').replace('\n', '')[:20]
+        app.logger.error(f"Weather API error for city '{safe_city}...': {type(e).__name__}")
         return None
 
 
