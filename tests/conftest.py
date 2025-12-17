@@ -27,14 +27,12 @@ class BaseTestCase(unittest.TestCase):
         app.config['WTF_CSRF_ENABLED'] = False
         app.config['SECRET_KEY'] = 'test-secret-key'
         
-        # Create temporary file for session storage if needed
-        self.db_fd, app.config['DATABASE'] = tempfile.mkstemp()
+        # No database file needed for this application
+
     
     def tearDown(self):
         """Clean up after tests."""
-        if hasattr(self, 'db_fd'):
-            os.close(self.db_fd)
-            os.unlink(app.config['DATABASE'])
+        pass
 
 
 class MockWeatherAPI:
