@@ -237,7 +237,10 @@ class SkyScope {
         // Validate city input - updated pattern to match backend validation
         if (cityInput) {
             const city = cityInput.value.trim();
-            const cityPattern = /^[a-zA-Z\s\-',.0-9]{1,64}$/;
+            // Use backend-provided city pattern if available, else fallback to default
+            const cityPattern = window.CITY_PATTERN
+                ? new RegExp(window.CITY_PATTERN)
+                : /^[a-zA-Z\s\-',.0-9]{1,64}$/;
             
             if (!city || !cityPattern.test(city)) {
                 e.preventDefault();
