@@ -108,7 +108,8 @@ h1 {
 }
 
 .toggle-switch input[type="checkbox"]:checked + .toggle-slider .slider::before {
-    transform: translateX(26px);
+    /* 50px (slider width) - 20px (button width) - 2px (left padding) - 2px (right padding) */
+    transform: translateX(calc(50px - 20px - 2px - 2px));
 }
 
 .toggle-switch input[type="checkbox"]:checked + .toggle-slider .unit-label.kelvin {
