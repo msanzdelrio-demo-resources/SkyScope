@@ -20,7 +20,7 @@ from unittest.mock import patch, MagicMock, Mock
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 from tests.conftest import BaseTestCase, MockWeatherAPI
-from app.utils import format_temperature, convert_weather_data
+from app.utils import format_temperature
 
 
 class TestTemperatureDisplayFormatting(BaseTestCase):
