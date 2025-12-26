@@ -66,7 +66,7 @@ class TestFahrenheitUnitValidation(BaseTestCase):
     
     def test_fahrenheit_api_parameter_mapping(self):
         """Test that Fahrenheit maps to imperial units parameter."""
-        # Mock the get_api_units_parameter function
+        # Test the get_api_units_parameter function
         result = get_api_units_parameter('fahrenheit')
         self.assertEqual(result, 'imperial',
                         msg="Fahrenheit should map to 'imperial' API parameter")
