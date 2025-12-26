@@ -33,8 +33,8 @@ h1 {
     width: 100%;
 }
 
-/* Temperature Toggle Styles */
-.temperature-toggle {
+/* Temperature Selector Styles (Three-Button Group) */
+.temperature-selector {
     margin-bottom: 1.5rem;
     padding: 1rem;
     border: 1px solid #e0e0e0;
@@ -42,7 +42,7 @@ h1 {
     background: rgba(248, 249, 250, 0.8);
 }
 
-.toggle-label {
+.selector-label {
     display: block;
     font-weight: 600;
     color: #333;
@@ -50,95 +50,80 @@ h1 {
     text-align: center;
 }
 
-.toggle-switch {
+.unit-buttons {
     display: flex;
     justify-content: center;
-    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
     padding: 0.5rem;
 }
 
-.toggle-switch input[type="checkbox"] {
-    display: none;
-}
-
-.toggle-slider {
-    position: relative;
+.unit-button {
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background: white;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 50px;
+    text-align: center;
+    user-select: none;
+    
+    /* Touch target size: 44x44px minimum */
+    min-height: 44px;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    cursor: pointer;
-    user-select: none;
+    justify-content: center;
 }
 
-.unit-label {
-    font-weight: 600;
-    font-size: 1rem;
-    color: #666;
-    transition: color 0.3s ease;
-    min-width: 30px;
-    text-align: center;
+.unit-button:hover:not(.active) {
+    border-color: #7c7cff;
+    color: #7c7cff;
+    background: rgba(124, 124, 255, 0.05);
 }
 
-.slider {
-    position: relative;
-    width: 50px;
-    height: 24px;
-    background: #e0e0e0;
-    border-radius: 12px;
-    transition: background 0.3s ease;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.slider::before {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 20px;
-    height: 20px;
-    background: white;
-    border-radius: 50%;
-    transition: transform 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-/* Checked state */
-.toggle-switch input[type="checkbox"]:checked + .toggle-slider .slider {
+.unit-button.active {
     background: linear-gradient(135deg, #7c7cff 0%, #6565f7 100%);
+    color: white;
+    border-color: #7c7cff;
+    box-shadow: 0 4px 8px rgba(124, 124, 255, 0.3);
 }
 
-.toggle-switch input[type="checkbox"]:checked + .toggle-slider .slider::before {
-    /* 50px (slider width) - 20px (button width) - 2px (left padding) - 2px (right padding) */
-    transform: translateX(calc(50px - 20px - 2px - 2px));
-}
-
-.toggle-switch input[type="checkbox"]:checked + .toggle-slider .unit-label.kelvin {
-    color: #7c7cff;
-    font-weight: 700;
-}
-
-.toggle-switch input[type="checkbox"]:not(:checked) + .toggle-slider .unit-label.celsius {
-    color: #7c7cff;
-    font-weight: 700;
+.unit-button.active:hover {
+    background: linear-gradient(135deg, #8a8aff 0%, #7575f7 100%);
+    box-shadow: 0 6px 12px rgba(124, 124, 255, 0.4);
 }
 
 /* Focus state for accessibility */
-.toggle-switch input[type="checkbox"]:focus + .toggle-slider .slider {
+.unit-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(124, 124, 255, 0.3);
+}
+
+.unit-button:focus-visible {
     outline: 2px solid #7c7cff;
     outline-offset: 2px;
 }
 
-/* Hover effects */
-.toggle-slider:hover .unit-label {
-    color: #7c7cff;
+/* Keyboard navigation support */
+.unit-button:active {
+    transform: scale(0.98);
 }
 
-.toggle-slider:hover .slider {
-    background: #d0d0d0;
-}
-
-.toggle-switch input[type="checkbox"]:checked + .toggle-slider:hover .slider {
-    background: linear-gradient(135deg, #8a8aff 0%, #7575f7 100%);
+/* Responsive design for smaller screens */
+@media (max-width: 480px) {
+    .unit-buttons {
+        gap: 0.25rem;
+    }
+    
+    .unit-button {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.95rem;
+        min-width: 45px;
+    }
 }
 
 /* Enhanced Form Styles */

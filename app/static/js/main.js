@@ -56,40 +56,66 @@ class SkyScope {
     }
     
     getCurrentUnit() {
-        // Get from checkbox toggle or default to celsius
-        const toggle = document.getElementById('temp-unit-toggle');
-        return toggle && toggle.checked ? 'kelvin' : 'celsius';
+        // Get from selected button or default to celsius
+        const activeButton = document.querySelector('.unit-button.active');
+        if (activeButton) {
+            return activeButton.getAttribute('data-unit');
+        }
+        return 'celsius';
     }
     
     syncToggleWithServer() {
-        // Set the toggle state based on the temperature unit from the server
-        const toggle = document.getElementById('temp-unit-toggle');
+        // Set the active button based on the temperature unit from the server
         const serverUnit = document.body.getAttribute('data-temperature-unit') || 'celsius';
-        if (toggle) {
-            toggle.checked = serverUnit === 'kelvin';
-            this.currentUnit = serverUnit;
-        }
+        const buttons = document.querySelectorAll('.unit-button');
+        buttons.forEach(button => {
+            if (button.getAttribute('data-unit') === serverUnit) {
+                button.classList.add('active');
+                button.setAttribute('aria-pressed', 'true');
+            } else {
+                button.classList.remove('active');
+                button.setAttribute('aria-pressed', 'false');
+            }
+        });
+        this.currentUnit = serverUnit;
     }
     
     initializeToggle() {
-        const toggle = document.getElementById('temp-unit-toggle');
+        const buttons = document.querySelectorAll('.unit-button');
         
-        if (toggle) {
-            toggle.addEventListener('change', (e) => {
-                const newUnit = e.target.checked ? 'kelvin' : 'celsius';
+        buttons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const newUnit = button.getAttribute('data-unit');
                 this.handleUnitChange(newUnit);
             });
             
             // Add keyboard navigation support
-            toggle.addEventListener('keydown', (e) => {
+            button.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    e.target.checked = !e.target.checked;
-                    const newUnit = e.target.checked ? 'kelvin' : 'celsius';
+                    const newUnit = button.getAttribute('data-unit');
                     this.handleUnitChange(newUnit);
                 }
+                
+                // Arrow key navigation
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    const allButtons = Array.from(document.querySelectorAll('.unit-button'));
+                    const currentIndex = allButtons.indexOf(button);
+                    let nextIndex;
+                    
+                    if (e.key === 'ArrowLeft') {
+                        nextIndex = currentIndex === 0 ? allButtons.length - 1 : currentIndex - 1;
+                    } else {
+                        nextIndex = currentIndex === allButtons.length - 1 ? 0 : currentIndex + 1;
+                    }
+                    
+                    allButtons[nextIndex].focus();
+                    allButtons[nextIndex].click();
+                }
             });
-        }
+        });
     }
     
     initializeForm() {
@@ -104,6 +130,19 @@ class SkyScope {
     async handleUnitChange(newUnit) {
         const previousUnit = this.currentUnit;
         this.currentUnit = newUnit;
+        
+        // Update button states immediately for visual feedback
+        const buttons = document.querySelectorAll('.unit-button');
+        buttons.forEach(button => {
+            const unit = button.getAttribute('data-unit');
+            if (unit === newUnit) {
+                button.classList.add('active');
+                button.setAttribute('aria-pressed', 'true');
+            } else {
+                button.classList.remove('active');
+                button.setAttribute('aria-pressed', 'false');
+            }
+        });
         
         try {
             console.log(`Temperature unit changing from ${previousUnit} to ${newUnit}`);
@@ -126,17 +165,25 @@ class SkyScope {
             }
             
             // Show feedback
-            this.showToast(`Temperature unit changed to ${newUnit.charAt(0).toUpperCase() + newUnit.slice(1)}`);
+            const unitNames = { 'celsius': 'Celsius', 'fahrenheit': 'Fahrenheit', 'kelvin': 'Kelvin' };
+            this.showToast(`Temperature unit changed to ${unitNames[newUnit]}`);
             
         } catch (error) {
             console.error('Error changing temperature unit:', error);
             this.showToast('Error changing temperature unit', 'error');
             
-            // Revert toggle state on error
-            const toggle = document.getElementById('temp-unit-toggle');
-            if (toggle) {
-                toggle.checked = previousUnit === 'kelvin';
-            }
+            // Revert button state on error
+            const buttons = document.querySelectorAll('.unit-button');
+            buttons.forEach(button => {
+                const unit = button.getAttribute('data-unit');
+                if (unit === previousUnit) {
+                    button.classList.add('active');
+                    button.setAttribute('aria-pressed', 'true');
+                } else {
+                    button.classList.remove('active');
+                    button.setAttribute('aria-pressed', 'false');
+                }
+            });
             this.currentUnit = previousUnit;
         }
     }
@@ -377,7 +424,7 @@ class SkyScope {
 
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new SkyScope();
+    window.skyScope = new SkyScope();
 });
 
 // Handle page visibility changes to refresh if needed

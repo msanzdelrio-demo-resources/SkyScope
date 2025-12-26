@@ -1,7 +1,7 @@
 ---
 name: 'Plan Generator'
 description: 'Analyzes requirements and generates comprehensive development plans with GitHub issue creation for the SkyScope weather application.'
-tools: ["read", "search", "mcp_github", "runSubagent"]
+tools: ["read", "search", "github/*", "runSubagent"]
 handoffs:
   - label: Create tests
     agent: tests
