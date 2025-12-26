@@ -14,7 +14,6 @@ Test Coverage:
 import unittest
 import sys
 import os
-from unittest.mock import patch, MagicMock
 
 # Add parent directory to path to import app modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
