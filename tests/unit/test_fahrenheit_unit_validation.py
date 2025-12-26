@@ -285,7 +285,7 @@ class TestFahrenheitAPIIntegration(BaseTestCase):
                 
                 # Result should be non-empty string
                 self.assertIsInstance(result, str)
-                self.assertTrue(len(result) > 0)
+                self.assertGreater(len(result), 0)
                 
                 # Result should be valid OpenWeatherMap API parameter
                 # Valid values: 'metric', 'imperial', 'standard'
