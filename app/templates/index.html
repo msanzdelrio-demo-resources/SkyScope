@@ -13,33 +13,23 @@
 
     <main role="main" aria-label="Weather application">
         <div class="form-container">
-            <!-- Temperature Unit Selector (Celsius / Fahrenheit / Kelvin) -->
-            <fieldset class="temperature-selector">
-                <legend class="selector-label">Temperature Unit:</legend>
-                <div class="unit-buttons">
-                    <button type="button" 
-                            class="unit-button {% if temperature_unit == 'celsius' %}active{% endif %}" 
-                            data-unit="celsius"
-                            aria-label="Select Celsius"
-                            aria-pressed="{% if temperature_unit == 'celsius' %}true{% else %}false{% endif %}">
-                        °C
-                    </button>
-                    <button type="button" 
-                            class="unit-button {% if temperature_unit == 'fahrenheit' %}active{% endif %}" 
-                            data-unit="fahrenheit"
-                            aria-label="Select Fahrenheit"
-                            aria-pressed="{% if temperature_unit == 'fahrenheit' %}true{% else %}false{% endif %}">
-                        °F
-                    </button>
-                    <button type="button" 
-                            class="unit-button {% if temperature_unit == 'kelvin' %}active{% endif %}" 
-                            data-unit="kelvin"
-                            aria-label="Select Kelvin"
-                            aria-pressed="{% if temperature_unit == 'kelvin' %}true{% else %}false{% endif %}">
-                        K
-                    </button>
+            <!-- Temperature Unit Toggle (Celsius / Kelvin) -->
+            <div class="temperature-toggle" role="group" aria-labelledby="temp-unit-label">
+                <label id="temp-unit-label" class="toggle-label">Temperature Unit:</label>
+                <div class="toggle-switch" role="switch" aria-labelledby="temp-unit-label">
+                    <input type="checkbox" 
+                           id="temp-unit-toggle" 
+                           name="temperature_unit" 
+                           value="kelvin"
+                           {% if temperature_unit == 'kelvin' %}checked{% endif %}
+                           aria-label="Toggle between Celsius and Kelvin temperature units">
+                    <label for="temp-unit-toggle" class="toggle-slider">
+                        <span class="unit-label celsius">°C</span>
+                        <span class="slider"></span>
+                        <span class="unit-label kelvin">K</span>
+                    </label>
                 </div>
-            </fieldset>
+            </div>
 
             <!-- Weather Search Form -->
             <form method="POST" id="weatherForm" aria-label="Weather search form">
@@ -70,7 +60,7 @@
 
         <!-- Weather Information Display -->
         {% if weather %}
-        <section class="weather-info" aria-label="Weather information">
+        <div class="weather-info" role="region" aria-label="Weather information">
             <div class="header">
                 <h2>Weather in {{ weather.city|e }}, {{ weather.country|e }}</h2>
                 <div class="weather-main">
@@ -106,7 +96,7 @@
                     <span class="metric-value">{{ weather.pressure|e }} hPa</span>
                 </div>
             </div>
-        </section>
+        </div>
         {% endif %}
     </main>
 
