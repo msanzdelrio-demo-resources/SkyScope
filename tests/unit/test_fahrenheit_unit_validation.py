@@ -14,7 +14,6 @@ Test Coverage:
 import unittest
 import sys
 import os
-from unittest.mock import patch, MagicMock
 
 # Add parent directory to path to import app modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
@@ -67,7 +66,7 @@ class TestFahrenheitUnitValidation(BaseTestCase):
     
     def test_fahrenheit_api_parameter_mapping(self):
         """Test that Fahrenheit maps to imperial units parameter."""
-        # Mock the get_api_units_parameter function
+        # Test the get_api_units_parameter function
         result = get_api_units_parameter('fahrenheit')
         self.assertEqual(result, 'imperial',
                         msg="Fahrenheit should map to 'imperial' API parameter")
