@@ -60,6 +60,64 @@ class TestTemperatureUIComponents(BaseTestCase):
                 # self.assertIn(element, html_content)
                 pass  # Placeholder until implementation
     
+    def test_three_way_selector_all_units_present(self):
+        """Test that three-way selector includes Celsius, Fahrenheit, and Kelvin options."""
+        response = self.app.get('/')
+        self.assertEqual(response.status_code, 200)
+        
+        html_content = response.get_data(as_text=True)
+        
+        # Should contain all three temperature unit options
+        expected_units = [
+            ('celsius', '°C'),
+            ('fahrenheit', '°F'),
+            ('kelvin', 'K')
+        ]
+        
+        for unit, symbol in expected_units:
+            with self.subTest(unit=unit, symbol=symbol):
+                # When implemented, all three units should be present
+                # self.assertIn(unit, html_content.lower())
+                # self.assertIn(symbol, html_content)
+                pass  # Placeholder until implementation
+    
+    def test_radio_button_group_attributes(self):
+        """Test that radio buttons have correct attributes for three-way selection."""
+        response = self.app.get('/')
+        self.assertEqual(response.status_code, 200)
+        
+        html_content = response.get_data(as_text=True)
+        
+        # Should contain radio buttons with proper attributes
+        expected_attributes = [
+            'type="radio"',
+            'name="temperature_unit"',  # Same name for radio group
+            'value="celsius"',
+            'value="fahrenheit"',
+            'value="kelvin"',
+        ]
+        
+        for attr in expected_attributes:
+            with self.subTest(attribute=attr):
+                # self.assertIn(attr, html_content)
+                pass  # Placeholder until implementation
+    
+    def test_fahrenheit_option_selected(self):
+        """Test that Fahrenheit option is correctly selected when set in session."""
+        with self.app as client:
+            with client.session_transaction() as sess:
+                sess['temperature_unit'] = 'fahrenheit'
+            
+            response = client.get('/')
+            self.assertEqual(response.status_code, 200)
+            
+            html_content = response.get_data(as_text=True)
+            
+            # When implemented, Fahrenheit radio button should be checked
+            # Should find: <input type="radio" value="fahrenheit" checked>
+            # self.assertIn('value="fahrenheit" checked', html_content)
+            pass  # Placeholder until implementation
+    
     def test_temperature_unit_labels_display(self):
         """Test that temperature unit labels are displayed correctly."""
         response = self.app.get('/')

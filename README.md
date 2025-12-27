@@ -41,8 +41,10 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 5. Set up your OpenWeatherMap API key:
-   - Create a `.env` file in the project root
-   - Add your API key: `OPENWEATHERMAP_API_KEY=your_api_key_here`
+   - Create a `.env` file in the project root (copy from `.env.example`)
+   - Add your API key: `OPENWEATHER_APPID=your_api_key_here`
+   - Add a strong secret key: `SECRET_KEY=your_secret_key_here`
+   - **⚠️ CRITICAL SECURITY:** Never commit your `.env` file or hardcode API keys in code!
 
 ## API Documentation
 
@@ -93,6 +95,67 @@ Then, open your web browser and navigate to http://localhost:5001.
 - **app/static/js/main.js**: JavaScript for form submission and temperature unit toggle
 - **tests/unit/test_temperature_conversion.py**: Comprehensive unit tests for temperature features
 - **tests/test_views.py**: Integration tests for the application routes
+
+## 🔒 Security
+
+### API Key Security
+**CRITICAL:** API keys must NEVER be committed to version control or hardcoded in code.
+
+✅ **DO:**
+- Store API keys in `.env` file (already in `.gitignore`)
+- Use environment variables for all secrets
+- Generate strong secret keys for production
+- Keep `.env.example` updated (without actual values)
+
+❌ **DON'T:**
+- Hardcode API keys in JavaScript, HTML, or Python files
+- Commit `.env` file to Git
+- Share API keys in pull requests or issues
+- Use weak or default secret keys in production
+
+### Environment Configuration
+
+**Development Mode (default):**
+```bash
+export FLASK_ENV=development
+python run.py
+```
+
+**Production Mode:**
+```bash
+export FLASK_ENV=production
+export SECRET_KEY=$(python -c 'import secrets; print(secrets.token_hex(32))')
+export OPENWEATHER_APPID=your_actual_api_key
+python run.py
+```
+
+### Production Security Checklist
+- [ ] Set `FLASK_ENV=production`
+- [ ] Set strong `SECRET_KEY` (64 characters minimum)
+- [ ] Configure HTTPS/SSL certificate
+- [ ] Enable rate limiting
+- [ ] Set up monitoring and logging
+- [ ] Review security headers
+- [ ] Run security scan: `python security_check.py`
+- [ ] Update all dependencies
+- [ ] Configure firewall rules
+
+### Security Scanning
+
+Run security checks before deployment:
+```bash
+# Install security tools
+pip install safety bandit
+
+# Check for vulnerable dependencies
+safety check
+
+# Scan code for security issues
+bandit -r app/
+
+# Or run comprehensive check
+python security_check.py
+```
 
 ## Testing
 

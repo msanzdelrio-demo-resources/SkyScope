@@ -33,7 +33,7 @@ h1 {
     width: 100%;
 }
 
-/* Temperature Toggle Styles */
+/* Temperature Unit Selector Styles (Three-way: Celsius, Fahrenheit, Kelvin) */
 .temperature-toggle {
     margin-bottom: 1.5rem;
     padding: 1rem;
@@ -50,95 +50,97 @@ h1 {
     text-align: center;
 }
 
-.toggle-switch {
+.unit-selector {
     display: flex;
     justify-content: center;
-    align-items: center;
-    padding: 0.5rem;
+    align-items: stretch;
+    gap: 0;
+    background: #e0e0e0;
+    border-radius: 8px;
+    padding: 4px;
+    overflow: hidden;
 }
 
-.toggle-switch input[type="checkbox"] {
+.unit-selector input[type="radio"] {
     display: none;
 }
 
-.toggle-slider {
-    position: relative;
+.unit-option {
+    flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 0.75rem;
+    justify-content: center;
+    padding: 10px 16px;
+    background: transparent;
+    border-radius: 6px;
     cursor: pointer;
+    transition: all 0.3s ease;
     user-select: none;
+    min-width: 80px;
+    min-height: 44px;
 }
 
-.unit-label {
-    font-weight: 600;
-    font-size: 1rem;
+.unit-symbol {
+    font-size: 1.1rem;
+    font-weight: 700;
     color: #666;
     transition: color 0.3s ease;
-    min-width: 30px;
-    text-align: center;
+    display: block;
+    margin-bottom: 2px;
 }
 
-.slider {
-    position: relative;
-    width: 50px;
-    height: 24px;
-    background: #e0e0e0;
-    border-radius: 12px;
-    transition: background 0.3s ease;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+.unit-name {
+    font-size: 0.75rem;
+    color: #888;
+    transition: color 0.3s ease;
+    display: block;
 }
 
-.slider::before {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 20px;
-    height: 20px;
-    background: white;
-    border-radius: 50%;
-    transition: transform 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-/* Checked state */
-.toggle-switch input[type="checkbox"]:checked + .toggle-slider .slider {
+/* Selected state */
+.unit-selector input[type="radio"]:checked + .unit-option {
     background: linear-gradient(135deg, #7c7cff 0%, #6565f7 100%);
+    box-shadow: 0 2px 8px rgba(124, 124, 255, 0.3);
 }
 
-.toggle-switch input[type="checkbox"]:checked + .toggle-slider .slider::before {
-    /* 50px (slider width) - 20px (button width) - 2px (left padding) - 2px (right padding) */
-    transform: translateX(calc(50px - 20px - 2px - 2px));
+.unit-selector input[type="radio"]:checked + .unit-option .unit-symbol {
+    color: #ffffff;
 }
 
-.toggle-switch input[type="checkbox"]:checked + .toggle-slider .unit-label.kelvin {
-    color: #7c7cff;
-    font-weight: 700;
-}
-
-.toggle-switch input[type="checkbox"]:not(:checked) + .toggle-slider .unit-label.celsius {
-    color: #7c7cff;
-    font-weight: 700;
-}
-
-/* Focus state for accessibility */
-.toggle-switch input[type="checkbox"]:focus + .toggle-slider .slider {
-    outline: 2px solid #7c7cff;
-    outline-offset: 2px;
+.unit-selector input[type="radio"]:checked + .unit-option .unit-name {
+    color: rgba(255, 255, 255, 0.9);
 }
 
 /* Hover effects */
-.toggle-slider:hover .unit-label {
-    color: #7c7cff;
+.unit-option:hover {
+    background: rgba(124, 124, 255, 0.1);
 }
 
-.toggle-slider:hover .slider {
-    background: #d0d0d0;
-}
-
-.toggle-switch input[type="checkbox"]:checked + .toggle-slider:hover .slider {
+.unit-selector input[type="radio"]:checked + .unit-option:hover {
     background: linear-gradient(135deg, #8a8aff 0%, #7575f7 100%);
+}
+
+/* Focus state for accessibility */
+.unit-selector input[type="radio"]:focus + .unit-option {
+    outline: 2px solid #7c7cff;
+    outline-offset: 2px;
+    z-index: 1;
+}
+
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+    .unit-option {
+        padding: 8px 12px;
+        min-width: 70px;
+    }
+    
+    .unit-symbol {
+        font-size: 1rem;
+    }
+    
+    .unit-name {
+        font-size: 0.7rem;
+    }
 }
 
 /* Enhanced Form Styles */

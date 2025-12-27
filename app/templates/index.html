@@ -13,20 +13,41 @@
 
     <main role="main" aria-label="Weather application">
         <div class="form-container">
-            <!-- Temperature Unit Toggle (Celsius / Kelvin) -->
-            <div class="temperature-toggle" role="group" aria-labelledby="temp-unit-label">
+            <!-- Temperature Unit Selector (Celsius / Fahrenheit / Kelvin) -->
+            <div class="temperature-toggle" role="radiogroup" aria-labelledby="temp-unit-label">
                 <label id="temp-unit-label" class="toggle-label">Temperature Unit:</label>
-                <div class="toggle-switch" role="switch" aria-labelledby="temp-unit-label">
-                    <input type="checkbox" 
-                           id="temp-unit-toggle" 
+                <div class="unit-selector">
+                    <input type="radio" 
+                           id="unit-celsius" 
+                           name="temperature_unit" 
+                           value="celsius"
+                           {% if temperature_unit == 'celsius' or not temperature_unit %}checked{% endif %}
+                           aria-label="Select Celsius temperature unit">
+                    <label for="unit-celsius" class="unit-option">
+                        <span class="unit-symbol">°C</span>
+                        <span class="unit-name">Celsius</span>
+                    </label>
+                    
+                    <input type="radio" 
+                           id="unit-fahrenheit" 
+                           name="temperature_unit" 
+                           value="fahrenheit"
+                           {% if temperature_unit == 'fahrenheit' %}checked{% endif %}
+                           aria-label="Select Fahrenheit temperature unit">
+                    <label for="unit-fahrenheit" class="unit-option">
+                        <span class="unit-symbol">°F</span>
+                        <span class="unit-name">Fahrenheit</span>
+                    </label>
+                    
+                    <input type="radio" 
+                           id="unit-kelvin" 
                            name="temperature_unit" 
                            value="kelvin"
                            {% if temperature_unit == 'kelvin' %}checked{% endif %}
-                           aria-label="Toggle between Celsius and Kelvin temperature units">
-                    <label for="temp-unit-toggle" class="toggle-slider">
-                        <span class="unit-label celsius">°C</span>
-                        <span class="slider"></span>
-                        <span class="unit-label kelvin">K</span>
+                           aria-label="Select Kelvin temperature unit">
+                    <label for="unit-kelvin" class="unit-option">
+                        <span class="unit-symbol">K</span>
+                        <span class="unit-name">Kelvin</span>
                     </label>
                 </div>
             </div>

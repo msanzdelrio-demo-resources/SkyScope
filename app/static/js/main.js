@@ -56,40 +56,45 @@ class SkyScope {
     }
     
     getCurrentUnit() {
-        // Get from checkbox toggle or default to celsius
-        const toggle = document.getElementById('temp-unit-toggle');
-        return toggle && toggle.checked ? 'kelvin' : 'celsius';
+        // Get from radio button selection or default to celsius
+        const selectedRadio = document.querySelector('input[name="temperature_unit"]:checked');
+        return selectedRadio ? selectedRadio.value : 'celsius';
     }
     
     syncToggleWithServer() {
-        // Set the toggle state based on the temperature unit from the server
-        const toggle = document.getElementById('temp-unit-toggle');
+        // Set the radio button state based on the temperature unit from the server
         const serverUnit = document.body.getAttribute('data-temperature-unit') || 'celsius';
-        if (toggle) {
-            toggle.checked = serverUnit === 'kelvin';
+        const radioButton = document.getElementById(`unit-${serverUnit}`);
+        if (radioButton) {
+            radioButton.checked = true;
             this.currentUnit = serverUnit;
         }
     }
     
     initializeToggle() {
-        const toggle = document.getElementById('temp-unit-toggle');
+        // Get all radio buttons for temperature units
+        const radioButtons = document.querySelectorAll('input[name="temperature_unit"]');
         
-        if (toggle) {
-            toggle.addEventListener('change', (e) => {
-                const newUnit = e.target.checked ? 'kelvin' : 'celsius';
-                this.handleUnitChange(newUnit);
-            });
-            
-            // Add keyboard navigation support
-            toggle.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    e.target.checked = !e.target.checked;
-                    const newUnit = e.target.checked ? 'kelvin' : 'celsius';
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    const newUnit = e.target.value;
                     this.handleUnitChange(newUnit);
                 }
             });
-        }
+            
+            // Add keyboard navigation support (radio buttons handle this natively, but we add custom behavior)
+            radio.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    // Radio buttons handle space/enter natively, just ensure change is triggered
+                    if (!e.target.checked) {
+                        e.target.checked = true;
+                        const newUnit = e.target.value;
+                        this.handleUnitChange(newUnit);
+                    }
+                }
+            });
+        });
     }
     
     initializeForm() {
