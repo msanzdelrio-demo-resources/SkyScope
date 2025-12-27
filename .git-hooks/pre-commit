@@ -1,0 +1,71 @@
+#!/bin/bash
+# Pre-commit hook to prevent committing sensitive information
+# To install: cp .git-hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+
+echo "🔍 Running security checks..."
+
+# Check for hardcoded API keys and secrets
+if git diff --cached --name-only | xargs grep -nHE '(OPENWEATHER_APPID|SECRET_KEY|api_key|apikey|password|passwd|secret)[[:space:]]*[=:][[:space:]]*["\047][^"\047]{8,}["\047]' 2>/dev/null; then
+    echo ""
+    echo "❌ ERROR: Possible hardcoded secrets detected!"
+    echo "   Found potential API keys or secrets in staged files."
+    echo ""
+    echo "   Please:"
+    echo "   1. Remove hardcoded secrets from your code"
+    echo "   2. Use environment variables instead (.env file)"
+    echo "   3. Ensure .env is in .gitignore"
+    echo ""
+    echo "   To bypass this check (NOT RECOMMENDED):"
+    echo "   git commit --no-verify"
+    echo ""
+    exit 1
+fi
+
+# Check if .env file is being committed
+if git diff --cached --name-only | grep -q "^\.env$"; then
+    echo ""
+    echo "❌ ERROR: Attempting to commit .env file!"
+    echo "   The .env file contains sensitive information and should NOT be committed."
+    echo ""
+    echo "   Please:"
+    echo "   1. Remove .env from staged files: git reset HEAD .env"
+    echo "   2. Ensure .env is in .gitignore"
+    echo "   3. Commit .env.example instead (without actual secrets)"
+    echo ""
+    exit 1
+fi
+
+# Check for common secret patterns in Python files
+if git diff --cached --name-only -- '*.py' | xargs grep -nHE '(token|password|passwd|secret|api_key)[[:space:]]*=[[:space:]]*["\047][A-Za-z0-9+/=]{20,}["\047]' 2>/dev/null; then
+    echo ""
+    echo "⚠️  WARNING: Possible hardcoded credentials in Python files"
+    echo "   Review the matches above to ensure no secrets are being committed."
+    echo ""
+    echo "   Press Enter to continue or Ctrl+C to abort..."
+    read
+fi
+
+# Check for API keys in JavaScript files
+if git diff --cached --name-only -- '*.js' '*.html' | xargs grep -nHE '(api[_-]?key|apikey|token)[[:space:]]*[=:][[:space:]]*["\047\`][A-Za-z0-9]{20,}["\047\`]' 2>/dev/null; then
+    echo ""
+    echo "❌ ERROR: Possible API key in frontend code!"
+    echo "   API keys should NEVER be in JavaScript or HTML files."
+    echo ""
+    echo "   Please:"
+    echo "   1. Remove the API key from frontend code"
+    echo "   2. Use backend endpoints to make API calls"
+    echo "   3. Keep API keys server-side only"
+    echo ""
+    exit 1
+fi
+
+# Check for TODO or FIXME related to security
+if git diff --cached | grep -E '(TODO|FIXME).*[Ss]ecurity'; then
+    echo ""
+    echo "⚠️  WARNING: Security-related TODO/FIXME found"
+    echo "   Please review and address security todos before committing."
+    echo ""
+fi
+
+echo "✅ Security checks passed!"
+echo ""

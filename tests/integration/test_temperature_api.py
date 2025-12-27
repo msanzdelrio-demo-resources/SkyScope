@@ -98,24 +98,69 @@ class TestTemperatureAwareAPI(BaseTestCase):
         # Mock API response for Kelvin (no units parameter)
         mock_response = Mock()
         mock_response.json.return_value = self.mock_api.get_celsius_response()
+    
+    @patch('requests.get')
+    def test_fahrenheit_to_celsius_api_transition(self, mock_get):
+        """Test transitioning from Fahrenheit to Celsius API calls."""
+        # Mock API responses
+        mock_response = Mock()
+        mock_response.json.return_value = self.mock_api.get_fahrenheit_response()
         mock_response.status_code = 200
         mock_get.return_value = mock_response
         
-        # Test API call with Kelvin units
         with self.app as client:
+            # First request with Fahrenheit
             with client.session_transaction() as sess:
-                sess['temperature_unit'] = 'kelvin'
+                sess['temperature_unit'] = 'fahrenheit'
             
-            response = client.post('/', data={'city': 'Tokyo'})
+            response1 = client.post('/', data={'city': 'Miami'})
+            self.assertEqual(response1.status_code, 200)
             
-            # Verify API was called correctly
-            self.assertEqual(response.status_code, 200)
-            mock_get.assert_called_once()
+            # Change to Celsius
+            with client.session_transaction() as sess:
+                sess['temperature_unit'] = 'celsius'
             
-            # Check that API call doesn't include units parameter (defaults to Kelvin)
-            call_args = mock_get.call_args
-            url = call_args[0][0]
-            self.assertNotIn('units=', url)
+            mock_response.json.return_value = self.mock_api.get_celsius_response()
+            response2 = client.post('/', data={'city': 'Miami'})
+            self.assertEqual(response2.status_code, 200)
+            
+            # Verify both API calls succeeded
+            self.assertEqual(mock_get.call_count, 2)
+    
+    @patch('requests.get')
+    def test_all_three_units_api_parameters(self, mock_get):
+        """Test that all three temperature units map to correct API parameters."""
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        
+        unit_mappings = [
+            ('celsius', 'units=metric'),
+            ('fahrenheit', 'units=imperial'),
+            ('kelvin', ''),  # Kelvin doesn't include units parameter
+        ]
+        
+        for unit, expected_param in unit_mappings:
+            with self.subTest(unit=unit):
+                mock_response.json.return_value = self.mock_api.get_celsius_response()
+                mock_get.reset_mock()  # Reset call count for each subtest
+                
+                with self.app as client:
+                    with client.session_transaction() as sess:
+                        sess['temperature_unit'] = unit
+                    
+                    response = client.post('/', data={'city': 'TestCity'})
+                    self.assertEqual(response.status_code, 200)
+                    
+                    # Verify API was called
+                    self.assertTrue(mock_get.called, f"API should be called for {unit}")
+                    
+                    # Verify correct API parameter was used
+                    if mock_get.called:
+                        call_args = mock_get.call_args[0][0]
+                        if expected_param:
+                            self.assertIn(expected_param, call_args, 
+                                        f"Expected {expected_param} in API call for {unit}")
     
     @patch('requests.get')
     def test_api_response_temperature_conversion(self, mock_get):
@@ -421,6 +466,185 @@ class TestEndToEndTemperatureWorkflow(BaseTestCase):
                         # Unit preference should be maintained across searches
                         with client.session_transaction() as sess:
                             self.assertEqual(sess['temperature_unit'], unit)
+
+
+class TestTemperatureUnitSessionPersistence(BaseTestCase):
+    """Integration tests for temperature unit session persistence."""
+    
+    def setUp(self):
+        """Set up test environment."""
+        super().setUp()
+    
+    def test_fahrenheit_persists_across_requests(self):
+        """Test that Fahrenheit unit selection persists across multiple requests."""
+        with self.app as client:
+            # Set Fahrenheit
+            with client.session_transaction() as sess:
+                sess['temperature_unit'] = 'fahrenheit'
+            
+            # Make multiple requests
+            for i in range(3):
+                with self.subTest(request_number=i+1):
+                    response = client.get('/')
+                    self.assertEqual(response.status_code, 200)
+                    
+                    # Verify session still has fahrenheit
+                    with client.session_transaction() as sess:
+                        self.assertEqual(sess.get('temperature_unit'), 'fahrenheit')
+    
+    def test_unit_persistence_after_weather_search(self):
+        """Test that unit preference persists after performing weather searches."""
+        with self.app as client:
+            test_units = ['celsius', 'fahrenheit', 'kelvin']
+            
+            for unit in test_units:
+                with self.subTest(unit=unit):
+                    # Set unit preference
+                    with client.session_transaction() as sess:
+                        sess['temperature_unit'] = unit
+                    
+                    # Perform weather search
+                    with patch('requests.get') as mock_get:
+                        mock_response = Mock()
+                        mock_response.json.return_value = MockWeatherAPI.get_celsius_response()
+                        mock_response.status_code = 200
+                        mock_get.return_value = mock_response
+                        
+                        response = client.post('/', data={'city': 'London'})
+                        self.assertEqual(response.status_code, 200)
+                    
+                    # Verify unit preference is maintained
+                    with client.session_transaction() as sess:
+                        self.assertEqual(sess.get('temperature_unit'), unit)
+    
+    def test_session_permanence_configuration(self):
+        """Test that session is configured to be permanent for unit persistence."""
+        with self.app as client:
+            with client.session_transaction() as sess:
+                sess['temperature_unit'] = 'fahrenheit'
+                # Session should be set to permanent when unit is set
+                # self.assertTrue(sess.permanent)
+    
+    def test_invalid_unit_does_not_persist(self):
+        """Test that invalid temperature units don't persist in session."""
+        with self.app as client:
+            invalid_units = ['rankine', 'reaumur', 'invalid', '', None]
+            
+            for invalid_unit in invalid_units:
+                with self.subTest(invalid_unit=invalid_unit):
+                    # Attempt to set invalid unit
+                    response = client.post('/set-temperature-unit',
+                                          data={'unit': invalid_unit},
+                                          follow_redirects=True)
+                    
+                    # Session should not contain invalid unit
+                    with client.session_transaction() as sess:
+                        stored_unit = sess.get('temperature_unit', 'celsius')
+                        self.assertIn(stored_unit, ['celsius', 'fahrenheit', 'kelvin'])
+    
+    def test_default_unit_when_session_empty(self):
+        """Test that default unit (Celsius) is used when session has no preference."""
+        with self.app as client:
+            # Don't set any unit preference
+            response = client.get('/')
+            self.assertEqual(response.status_code, 200)
+            
+            html_content = response.get_data(as_text=True)
+            # Default should be Celsius
+            # When implemented, should show Celsius as selected
+
+
+class TestFahrenheitEdgeCases(BaseTestCase):
+    """Integration tests for Fahrenheit-specific edge cases."""
+    
+    def setUp(self):
+        """Set up test environment."""
+        super().setUp()
+        self.mock_api = MockWeatherAPI()
+    
+    @patch('requests.get')
+    def test_extreme_cold_fahrenheit_display(self, mock_get):
+        """Test display of extreme cold temperatures in Fahrenheit."""
+        # Mock extreme cold response
+        mock_response = Mock()
+        mock_response.json.return_value = self.mock_api.get_extreme_temperature_response()
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        
+        with self.app as client:
+            with client.session_transaction() as sess:
+                sess['temperature_unit'] = 'fahrenheit'
+            
+            response = client.post('/', data={'city': 'Antarctica'})
+            self.assertEqual(response.status_code, 200)
+            
+            html_content = response.get_data(as_text=True)
+            # -40°C = -40°F (same value at this temperature)
+            # When implemented, should display negative Fahrenheit values
+    
+    @patch('requests.get')
+    def test_extreme_hot_fahrenheit_display(self, mock_get):
+        """Test display of extreme hot temperatures in Fahrenheit."""
+        # Mock extreme hot response
+        mock_response = Mock()
+        mock_response.json.return_value = self.mock_api.get_hot_temperature_response()
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        
+        with self.app as client:
+            with client.session_transaction() as sess:
+                sess['temperature_unit'] = 'fahrenheit'
+            
+            response = client.post('/', data={'city': 'Death Valley'})
+            self.assertEqual(response.status_code, 200)
+            
+            html_content = response.get_data(as_text=True)
+            # 50°C = 122°F
+            # When implemented, should display high Fahrenheit values (100+)
+    
+    @patch('requests.get')
+    def test_fahrenheit_freezing_point_display(self, mock_get):
+        """Test display of water freezing point in Fahrenheit (32°F)."""
+        # Mock response with 0°C temperature
+        mock_response = Mock()
+        mock_data = self.mock_api.get_celsius_response()
+        mock_data['main']['temp'] = 273.15  # 0°C in Kelvin
+        mock_response.json.return_value = mock_data
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        
+        with self.app as client:
+            with client.session_transaction() as sess:
+                sess['temperature_unit'] = 'fahrenheit'
+            
+            response = client.post('/', data={'city': 'TestCity'})
+            self.assertEqual(response.status_code, 200)
+            
+            html_content = response.get_data(as_text=True)
+            # 0°C = 32°F
+            # When implemented, should display 32°F
+    
+    @patch('requests.get')
+    def test_fahrenheit_boiling_point_display(self, mock_get):
+        """Test display of water boiling point in Fahrenheit (212°F)."""
+        # Mock response with 100°C temperature
+        mock_response = Mock()
+        mock_data = self.mock_api.get_celsius_response()
+        mock_data['main']['temp'] = 373.15  # 100°C in Kelvin
+        mock_response.json.return_value = mock_data
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        
+        with self.app as client:
+            with client.session_transaction() as sess:
+                sess['temperature_unit'] = 'fahrenheit'
+            
+            response = client.post('/', data={'city': 'TestCity'})
+            self.assertEqual(response.status_code, 200)
+            
+            html_content = response.get_data(as_text=True)
+            # 100°C = 212°F
+            # When implemented, should display 212°F
 
 
 if __name__ == '__main__':

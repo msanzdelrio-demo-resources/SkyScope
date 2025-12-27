@@ -260,5 +260,161 @@ class TestTemperatureConversion(BaseTestCase):
         self.assertAlmostEqual(result, 59.999999, places=6)
 
 
+class TestThreeWayConversionScenarios(BaseTestCase):
+    """Test cases for three-way temperature conversion scenarios."""
+    
+    def setUp(self):
+        """Set up test environment."""
+        super().setUp()
+    
+    def test_celsius_to_all_units(self):
+        """Test converting from Celsius to all three units."""
+        celsius_value = 20.0
+        
+        # Celsius to Celsius (identity)
+        result = convert_temperature(celsius_value, 'celsius', 'celsius')
+        self.assertAlmostEqual(result, 20.0, places=1)
+        
+        # Celsius to Fahrenheit
+        result = convert_temperature(celsius_value, 'celsius', 'fahrenheit')
+        self.assertAlmostEqual(result, 68.0, places=1)
+        
+        # Celsius to Kelvin
+        result = convert_temperature(celsius_value, 'celsius', 'kelvin')
+        self.assertAlmostEqual(result, 293.15, places=1)
+    
+    def test_fahrenheit_to_all_units(self):
+        """Test converting from Fahrenheit to all three units."""
+        fahrenheit_value = 68.0
+        
+        # Fahrenheit to Fahrenheit (identity)
+        result = convert_temperature(fahrenheit_value, 'fahrenheit', 'fahrenheit')
+        self.assertAlmostEqual(result, 68.0, places=1)
+        
+        # Fahrenheit to Celsius
+        result = convert_temperature(fahrenheit_value, 'fahrenheit', 'celsius')
+        self.assertAlmostEqual(result, 20.0, places=1)
+        
+        # Fahrenheit to Kelvin
+        result = convert_temperature(fahrenheit_value, 'fahrenheit', 'kelvin')
+        self.assertAlmostEqual(result, 293.15, places=1)
+    
+    def test_kelvin_to_all_units(self):
+        """Test converting from Kelvin to all three units."""
+        kelvin_value = 293.15
+        
+        # Kelvin to Kelvin (identity)
+        result = convert_temperature(kelvin_value, 'kelvin', 'kelvin')
+        self.assertAlmostEqual(result, 293.15, places=1)
+        
+        # Kelvin to Celsius
+        result = convert_temperature(kelvin_value, 'kelvin', 'celsius')
+        self.assertAlmostEqual(result, 20.0, places=1)
+        
+        # Kelvin to Fahrenheit
+        result = convert_temperature(kelvin_value, 'kelvin', 'fahrenheit')
+        self.assertAlmostEqual(result, 68.0, places=1)
+    
+    def test_round_trip_conversions_celsius_fahrenheit(self):
+        """Test round-trip conversions between Celsius and Fahrenheit."""
+        original = 25.5
+        
+        # Celsius -> Fahrenheit -> Celsius
+        fahrenheit = convert_temperature(original, 'celsius', 'fahrenheit')
+        back_to_celsius = convert_temperature(fahrenheit, 'fahrenheit', 'celsius')
+        
+        self.assertAlmostEqual(back_to_celsius, original, places=2,
+                              msg="Round-trip Celsius->Fahrenheit->Celsius failed")
+    
+    def test_round_trip_conversions_fahrenheit_kelvin(self):
+        """Test round-trip conversions between Fahrenheit and Kelvin."""
+        original = 72.5
+        
+        # Fahrenheit -> Kelvin -> Fahrenheit
+        kelvin = convert_temperature(original, 'fahrenheit', 'kelvin')
+        back_to_fahrenheit = convert_temperature(kelvin, 'kelvin', 'fahrenheit')
+        
+        self.assertAlmostEqual(back_to_fahrenheit, original, places=2,
+                              msg="Round-trip Fahrenheit->Kelvin->Fahrenheit failed")
+    
+    def test_round_trip_conversions_celsius_kelvin(self):
+        """Test round-trip conversions between Celsius and Kelvin."""
+        original = 18.3
+        
+        # Celsius -> Kelvin -> Celsius
+        kelvin = convert_temperature(original, 'celsius', 'kelvin')
+        back_to_celsius = convert_temperature(kelvin, 'kelvin', 'celsius')
+        
+        self.assertAlmostEqual(back_to_celsius, original, places=2,
+                              msg="Round-trip Celsius->Kelvin->Celsius failed")
+    
+    def test_special_temperature_points_all_units(self):
+        """Test conversion of special temperature points across all three units."""
+        special_points = [
+            # (celsius, fahrenheit, kelvin, description)
+            (0.0, 32.0, 273.15, "Water freezing point"),
+            (100.0, 212.0, 373.15, "Water boiling point"),
+            (-40.0, -40.0, 233.15, "Celsius-Fahrenheit intersection"),
+            (37.0, 98.6, 310.15, "Human body temperature"),
+        ]
+        
+        for celsius, fahrenheit, kelvin, description in special_points:
+            with self.subTest(description=description):
+                # Test Celsius conversions
+                c_to_f = convert_temperature(celsius, 'celsius', 'fahrenheit')
+                c_to_k = convert_temperature(celsius, 'celsius', 'kelvin')
+                self.assertAlmostEqual(c_to_f, fahrenheit, places=1)
+                self.assertAlmostEqual(c_to_k, kelvin, places=2)
+                
+                # Test Fahrenheit conversions
+                f_to_c = convert_temperature(fahrenheit, 'fahrenheit', 'celsius')
+                f_to_k = convert_temperature(fahrenheit, 'fahrenheit', 'kelvin')
+                self.assertAlmostEqual(f_to_c, celsius, places=1)
+                self.assertAlmostEqual(f_to_k, kelvin, places=2)
+                
+                # Test Kelvin conversions
+                k_to_c = convert_temperature(kelvin, 'kelvin', 'celsius')
+                k_to_f = convert_temperature(kelvin, 'kelvin', 'fahrenheit')
+                self.assertAlmostEqual(k_to_c, celsius, places=1)
+                self.assertAlmostEqual(k_to_f, fahrenheit, places=1)
+    
+    def test_format_temperature_all_units(self):
+        """Test temperature formatting for all three units."""
+        temperature = 20.5
+        
+        # Test formatting for each unit
+        celsius_formatted = format_temperature(temperature, 'celsius')
+        self.assertIn('20.5', celsius_formatted)
+        self.assertIn('°C', celsius_formatted)
+        
+        fahrenheit_formatted = format_temperature(temperature, 'fahrenheit')
+        self.assertIn('20.5', fahrenheit_formatted)
+        self.assertIn('°F', fahrenheit_formatted)
+        
+        kelvin_formatted = format_temperature(temperature, 'kelvin')
+        self.assertIn('20.5', kelvin_formatted)
+        self.assertIn('K', kelvin_formatted)
+    
+    def test_conversion_performance_all_units(self):
+        """Test that all conversion combinations complete within performance threshold."""
+        units = ['celsius', 'fahrenheit', 'kelvin']
+        temperature = 25.0
+        max_time_ms = 10
+        
+        for from_unit in units:
+            for to_unit in units:
+                with self.subTest(from_unit=from_unit, to_unit=to_unit):
+                    start_time = time.time()
+                    
+                    result = convert_temperature(temperature, from_unit, to_unit)
+                    
+                    end_time = time.time()
+                    execution_time_ms = (end_time - start_time) * 1000
+                    
+                    self.assertLess(execution_time_ms, max_time_ms,
+                                   f"Conversion {from_unit}->{to_unit} took {execution_time_ms:.2f}ms")
+                    self.assertIsInstance(result, float)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -139,6 +139,48 @@ class TestSessionManagement(BaseTestCase):
                     response = client.get('/')
                     self.assertEqual(response.status_code, 200)
     
+    def test_three_way_unit_switching(self):
+        """Test rapid switching between all three temperature units."""
+        with self.app as client:
+            units_sequence = ['celsius', 'fahrenheit', 'kelvin', 'fahrenheit', 'celsius', 'kelvin']
+            
+            for unit in units_sequence:
+                with self.subTest(unit=unit):
+                    with client.session_transaction() as sess:
+                        sess['temperature_unit'] = unit
+                    
+                    # Verify each change
+                    with client.session_transaction() as sess:
+                        self.assertEqual(sess['temperature_unit'], unit)
+    
+    def test_fahrenheit_default_for_us_locale(self):
+        """Test that Fahrenheit can be set as default (future locale support)."""
+        # This test prepares for potential future locale-based defaults
+        with self.app as client:
+            with client.session_transaction() as sess:
+                sess['temperature_unit'] = 'fahrenheit'
+                # Could also set locale preference
+                # sess['locale'] = 'en_US'
+            
+            with client.session_transaction() as sess:
+                self.assertEqual(sess['temperature_unit'], 'fahrenheit')
+    
+    def test_all_three_units_valid_in_session(self):
+        """Test that all three temperature units are valid session values."""
+        valid_units = ['celsius', 'fahrenheit', 'kelvin']
+        
+        for unit in valid_units:
+            with self.subTest(unit=unit):
+                with self.app as client:
+                    with client.session_transaction() as sess:
+                        sess['temperature_unit'] = unit
+                    
+                    response = client.get('/')
+                    self.assertEqual(response.status_code, 200)
+                    
+                    with client.session_transaction() as sess:
+                        self.assertEqual(sess['temperature_unit'], unit)
+    
     def test_session_data_sanitization(self):
         """Test that session data is properly sanitized against XSS."""
         xss_attempts = [

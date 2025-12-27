@@ -18,9 +18,14 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from tests.unit.test_temperature_conversion import TestTemperatureConversion
+from tests.unit.test_temperature_conversion import TestTemperatureConversion, TestThreeWayConversionScenarios
 from tests.unit.test_session_management import TestSessionManagement, TestSetTemperatureUnitEndpoint
-from tests.integration.test_temperature_api import TestTemperatureAwareAPI, TestEndToEndTemperatureWorkflow
+from tests.integration.test_temperature_api import (
+    TestTemperatureAwareAPI, 
+    TestEndToEndTemperatureWorkflow,
+    TestTemperatureUnitSessionPersistence,
+    TestFahrenheitEdgeCases
+)
 from tests.functional.test_temperature_ui import (
     TestTemperatureUIComponents, 
     TestTemperatureUIAccessibility,
@@ -32,33 +37,39 @@ from tests.functional.test_temperature_ui import (
 
 def create_test_suite():
     """Create comprehensive test suite for temperature functionality."""
+    loader = unittest.TestLoader()
     suite = unittest.TestSuite()
     
     # Unit Tests
-    suite.addTest(unittest.makeSuite(TestTemperatureConversion))
-    suite.addTest(unittest.makeSuite(TestSessionManagement))
-    suite.addTest(unittest.makeSuite(TestSetTemperatureUnitEndpoint))
+    suite.addTests(loader.loadTestsFromTestCase(TestTemperatureConversion))
+    suite.addTests(loader.loadTestsFromTestCase(TestThreeWayConversionScenarios))
+    suite.addTests(loader.loadTestsFromTestCase(TestSessionManagement))
+    suite.addTests(loader.loadTestsFromTestCase(TestSetTemperatureUnitEndpoint))
     
     # Integration Tests
-    suite.addTest(unittest.makeSuite(TestTemperatureAwareAPI))
-    suite.addTest(unittest.makeSuite(TestEndToEndTemperatureWorkflow))
+    suite.addTests(loader.loadTestsFromTestCase(TestTemperatureAwareAPI))
+    suite.addTests(loader.loadTestsFromTestCase(TestEndToEndTemperatureWorkflow))
+    suite.addTests(loader.loadTestsFromTestCase(TestTemperatureUnitSessionPersistence))
+    suite.addTests(loader.loadTestsFromTestCase(TestFahrenheitEdgeCases))
     
     # Functional Tests
-    suite.addTest(unittest.makeSuite(TestTemperatureUIComponents))
-    suite.addTest(unittest.makeSuite(TestTemperatureUIAccessibility))
-    suite.addTest(unittest.makeSuite(TestTemperatureUIPerformance))
-    suite.addTest(unittest.makeSuite(TestCrossBrowserCompatibility))
-    suite.addTest(unittest.makeSuite(TestTemperatureUIErrorHandling))
+    suite.addTests(loader.loadTestsFromTestCase(TestTemperatureUIComponents))
+    suite.addTests(loader.loadTestsFromTestCase(TestTemperatureUIAccessibility))
+    suite.addTests(loader.loadTestsFromTestCase(TestTemperatureUIPerformance))
+    suite.addTests(loader.loadTestsFromTestCase(TestCrossBrowserCompatibility))
+    suite.addTests(loader.loadTestsFromTestCase(TestTemperatureUIErrorHandling))
     
     return suite
 
 
 def run_unit_tests():
     """Run only unit tests."""
+    loader = unittest.TestLoader()
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TestTemperatureConversion))
-    suite.addTest(unittest.makeSuite(TestSessionManagement))
-    suite.addTest(unittest.makeSuite(TestSetTemperatureUnitEndpoint))
+    suite.addTests(loader.loadTestsFromTestCase(TestTemperatureConversion))
+    suite.addTests(loader.loadTestsFromTestCase(TestThreeWayConversionScenarios))
+    suite.addTests(loader.loadTestsFromTestCase(TestSessionManagement))
+    suite.addTests(loader.loadTestsFromTestCase(TestSetTemperatureUnitEndpoint))
     
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
@@ -67,9 +78,12 @@ def run_unit_tests():
 
 def run_integration_tests():
     """Run only integration tests."""
+    loader = unittest.TestLoader()
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TestTemperatureAwareAPI))
-    suite.addTest(unittest.makeSuite(TestEndToEndTemperatureWorkflow))
+    suite.addTests(loader.loadTestsFromTestCase(TestTemperatureAwareAPI))
+    suite.addTests(loader.loadTestsFromTestCase(TestEndToEndTemperatureWorkflow))
+    suite.addTests(loader.loadTestsFromTestCase(TestTemperatureUnitSessionPersistence))
+    suite.addTests(loader.loadTestsFromTestCase(TestFahrenheitEdgeCases))
     
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
@@ -78,12 +92,13 @@ def run_integration_tests():
 
 def run_functional_tests():
     """Run only functional tests."""
+    loader = unittest.TestLoader()
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TestTemperatureUIComponents))
-    suite.addTest(unittest.makeSuite(TestTemperatureUIAccessibility))
-    suite.addTest(unittest.makeSuite(TestTemperatureUIPerformance))
-    suite.addTest(unittest.makeSuite(TestCrossBrowserCompatibility))
-    suite.addTest(unittest.makeSuite(TestTemperatureUIErrorHandling))
+    suite.addTests(loader.loadTestsFromTestCase(TestTemperatureUIComponents))
+    suite.addTests(loader.loadTestsFromTestCase(TestTemperatureUIAccessibility))
+    suite.addTests(loader.loadTestsFromTestCase(TestTemperatureUIPerformance))
+    suite.addTests(loader.loadTestsFromTestCase(TestCrossBrowserCompatibility))
+    suite.addTests(loader.loadTestsFromTestCase(TestTemperatureUIErrorHandling))
     
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
