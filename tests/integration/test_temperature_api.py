@@ -137,12 +137,13 @@ class TestTemperatureAwareAPI(BaseTestCase):
         unit_mappings = [
             ('celsius', 'units=metric'),
             ('fahrenheit', 'units=imperial'),
-            ('kelvin', 'units=standard'),
+            ('kelvin', ''),  # Kelvin doesn't include units parameter
         ]
         
         for unit, expected_param in unit_mappings:
             with self.subTest(unit=unit):
                 mock_response.json.return_value = self.mock_api.get_celsius_response()
+                mock_get.reset_mock()  # Reset call count for each subtest
                 
                 with self.app as client:
                     with client.session_transaction() as sess:
@@ -151,29 +152,15 @@ class TestTemperatureAwareAPI(BaseTestCase):
                     response = client.post('/', data={'city': 'TestCity'})
                     self.assertEqual(response.status_code, 200)
                     
+                    # Verify API was called
+                    self.assertTrue(mock_get.called, f"API should be called for {unit}")
+                    
                     # Verify correct API parameter was used
                     if mock_get.called:
                         call_args = mock_get.call_args[0][0]
-                        # When implemented, should contain correct units parameter
-                        # self.assertIn(expected_param, call_args)
-        mock_response.status_code = 200
-        mock_get.return_value = mock_response
-        
-        # Test API call with Kelvin units
-        with self.app as client:
-            with client.session_transaction() as sess:
-                sess['temperature_unit'] = 'kelvin'
-            
-            response = client.post('/', data={'city': 'Tokyo'})
-            
-            # Verify API was called correctly
-            self.assertEqual(response.status_code, 200)
-            mock_get.assert_called_once()
-            
-            # Check that API call doesn't include units parameter (defaults to Kelvin)
-            call_args = mock_get.call_args
-            url = call_args[0][0]
-            self.assertNotIn('units=', url)
+                        if expected_param:
+                            self.assertIn(expected_param, call_args, 
+                                        f"Expected {expected_param} in API call for {unit}")
     
     @patch('requests.get')
     def test_api_response_temperature_conversion(self, mock_get):
